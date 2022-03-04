@@ -4,11 +4,16 @@ import acm.graphics.GOval;
 import acm.program.GraphicsProgram;
 import svu.csc213.Dialog;
 
+import java.util.Locale;
 import java.util.Random;
 
 public class HangMan extends GraphicsProgram {
 
-    private String[] wordsArr = {"bunny", "bus", "sublime", "committee", "biography", "printer", "bench", "pavement", "reptile", "sleep", "transport", "push", "bullet", "dramatic", "welcome", "admire", "dozen", "beef", "fork", "crisis", "cucumber", "stubborn", "philosophy", "take", "walk", "pasture", "install", "minor", "active", "stem", "desk", "debt", "superintendent"};
+    private String[] wordsArr = {"bunny", "bus", "sublime", "committee", "biography", "printer", "bench", "pavement", "reptile", "sleep", "transport", "push",
+            "bullet", "dramatic", "welcome", "admire", "dozen", "beef", "fork", "crisis", "cucumber", "stubborn", "philosophy", "take", "walk", "pasture", "install",
+            "minor", "active", "stem", "desk", "debt", "superintendent", "crop", "rank", "minimum", "harsh", "source", "primary", "decisive", "weigh", "know",
+            "recover", "ground", "problem", "pool", "slippery", "absolute", "nerve", "impress", "garbage", "annual", "concede", "root", "shaft", "benefit", "balance",
+            "flower", "dialogue", "word", "resident", "speaker", "glimpse"};
     private Random rand;
     public String targetWord;
     public Blank blank;
@@ -32,7 +37,6 @@ public class HangMan extends GraphicsProgram {
         add(wrongGuess, 10, 75);
 
         for (int i = 0; i < targetWord.length(); i++) {
-            //double blankX = (getWidth()/2) - (blank.WIDTH+15)*(targetWord.length()/2) + (blank.WIDTH + 15)*i;
             double blankX = 100 + (blank.WIDTH+15)*i;
             blanks[i] = new Blank(blankX, 400);
             blanks[i].setFilled(true);
@@ -187,7 +191,6 @@ public class HangMan extends GraphicsProgram {
                 add(letterLabel);
                 correct  = true;
                 correctCount++;
-                System.out.println(correctCount);
             }
         }
         if(!correct) {
@@ -205,7 +208,7 @@ public class HangMan extends GraphicsProgram {
             Dialog.showMessage("Sorry, please enter a single letter");
             getGuess();
         }
-        return letter;
+        return letter.toLowerCase();
     }
 
     private void handleLimbLoss() {
