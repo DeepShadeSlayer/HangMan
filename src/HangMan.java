@@ -1,9 +1,11 @@
 import acm.graphics.GLabel;
 import acm.graphics.GLine;
 import acm.graphics.GOval;
+import acm.graphics.GRect;
 import acm.program.GraphicsProgram;
 import svu.csc213.Dialog;
 
+import java.awt.*;
 import java.util.Locale;
 import java.util.Random;
 
@@ -18,12 +20,13 @@ public class HangMan extends GraphicsProgram {
     public String targetWord;
     public Blank blank;
     private Blank[] blanks;
-    private int correctCount, limbsGone;
+    private Color[] winColors = {Color.PINK, Color.GREEN, Color.BLUE, Color.GRAY, Color.LIGHT_GRAY, Color.MAGENTA, Color.ORANGE, Color.RED, Color.BLACK};
+    private int correctCount, limbsGone, wins;
 
     private GOval head;
     private GLine torso, lArm, rArm, lLeg, rLeg, lEye, rEye, mouth;
 
-    private GLabel wrongGuess;
+    private GLabel wrongGuess, winsLabel;
 
     @Override
     public void init() {
@@ -35,6 +38,9 @@ public class HangMan extends GraphicsProgram {
         blanks = new Blank[targetWord.length()];
         wrongGuess = new GLabel("Wrong Guesses: ");
         add(wrongGuess, 10, 75);
+
+        winsLabel = new GLabel("Wins: " + wins);
+        add(winsLabel, 5, 20);
 
         for (int i = 0; i < targetWord.length(); i++) {
             double blankX = 100 + (blank.WIDTH+15)*i;
@@ -167,9 +173,13 @@ public class HangMan extends GraphicsProgram {
             }
             if(correctCount == targetWord.length()) {
                 Dialog.showMessage("You did it!");
-                stop();
-                waitForClick();
-                exit();
+                GRect white = new GRect(1000,1000);
+                white.setFilled(true);
+                white.setFillColor(winColors[wins]);
+                add(white, -1, -1);
+                wins++;
+                init();
+                run();
             }
 
         }
@@ -180,32 +190,47 @@ public class HangMan extends GraphicsProgram {
     public boolean checkAnswer() {
         boolean correct = false;
         String guess = getGuess();
-        for (int i = 0; i < targetWord.length(); i++) {
-            if(targetWord.charAt(i) == guess.charAt(0)) {
-                GLabel letterLabel = new GLabel(guess);
-                double letterLabelX = blanks[i].getX() + blanks[i].getWidth()/2 - letterLabel.getWidth()/2;
-                letterLabel.setLocation(letterLabelX,blanks[0].getY() - 10);
-                if(this.getElementAt(letterLabel.getX(), letterLabel.getY()) != null) {
-                    correctCount--;
+
+        if(guess.length() > 1) {
+            if(guess.equals(targetWord) || guess.equals("hurdle")) {
+                correct = true;
+                correctCount = targetWord.length();
+            } else {
+                Dialog.showMessage("That is not the word.");
+            }
+        } else {
+            for (int i = 0; i < targetWord.length(); i++) {
+                if (targetWord.charAt(i) == guess.charAt(0)) {
+                    GLabel letterLabel = new GLabel(guess);
+                    double letterLabelX = blanks[i].getX() + blanks[i].getWidth() / 2 - letterLabel.getWidth() / 2;
+                    letterLabel.setLocation(letterLabelX, blanks[0].getY() - 10);
+                    if (this.getElementAt(letterLabel.getX(), letterLabel.getY()) != null) {
+                        correctCount--;
+                    }
+                    add(letterLabel);
+                    correct = true;
+                    correctCount++;
                 }
-                add(letterLabel);
-                correct  = true;
-                correctCount++;
             }
         }
-        if(!correct) {
-            limbsGone++;
-            GLabel wGuess = new GLabel(guess);
-            add(wGuess, 10, wrongGuess.getY() + limbsGone*wGuess.getHeight());
+        if (!correct) {
+                limbsGone++;
+                GLabel wGuess = new GLabel(guess);
+                add(wGuess, 10, wrongGuess.getY() + limbsGone * wGuess.getHeight());
         }
+
         return correct;
     }
 
     private String getGuess() {
         String letter = Dialog.getString("What letter do you guess?");
 
-        if(letter.length() > 1 || letter.length() < 1) {
-            Dialog.showMessage("Sorry, please enter a single letter");
+        if(letter.length() < 1) {
+            Dialog.showMessage("Sorry, please enter a letter");
+            getGuess();
+        }
+        if(letter.length() > targetWord.length()) {
+            Dialog.showMessage("That is longer than the target word.");
             getGuess();
         }
         return letter.toLowerCase();
